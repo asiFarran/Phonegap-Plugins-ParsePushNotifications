@@ -1,6 +1,5 @@
-cordova.define("com.stratogos.cordova.parsePushNotifications", function(require, exports, module) {
-               
-               var exec = require('cordova/exec');
+
+var exec = require('cordova/exec');
                var pluginNativeName = "ParsePushNotificationPlugin";
                
                var ParsePushPlugin = function () {};
@@ -57,5 +56,4 @@ cordova.define("com.stratogos.cordova.parsePushNotifications", function(require,
                };
 			   
                module.exports = new ParsePushPlugin();
-});
 
