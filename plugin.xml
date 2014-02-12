@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+        id="com.stratogos.cordova.parsePushNotifications"
+        version="0.1.0">
+    <name>ParsePushNotifications</name>
+    <description>Cordova Parse Push Notification Plugin</description>
+    <author>Asi Farran</author>
+    <license>Apache 2.0</license>
+    <keywords>cordova,parse,push</keywords>
+
+    <js-module src="www/parsePushNotifications.js" name="ParsePushNotifications">
+        <clobbers target="plugins.parsePushNotifications" />
+    </js-module>
+
+
+    <platform name="ios">
+
+        <config-file target="config.xml" parent="/*">
+			<feature name="ParsePushNotificationPlugin">
+				<param name="ios-package" value="ParsePushNotificationPlugin" />
+			</feature>
+        </config-file>
+
+        
+		<header-file src="src/ios/AppDelegate+parsePushNotification.h" />		
+        <source-file src="src/ios/AppDelegate+parsePushNotification.m" />
+		
+		<header-file src="src/ios/ParsePushNotificationPlugin.h" />
+        <source-file src="src/ios/ParsePushNotificationPlugin.m" />
+	   
+        <framework src="libz.dylib" />
+        <framework src="AudioToolbox.framework" />
+        <framework src="CFNetwork.framework" />
+		<framework src="CoreLocation.framework" />
+		<framework src="QuartzCore.framework" />
+		<framework src="Security.framework" />
+		<framework src="StoreKit.framework" />
+		<framework src="MobileCoreServices.framework" />		
+        <framework src="SystemConfiguration.framework" />
+		<framework src="src/ios/sdk/Parse.framework" custom="true"/>
+
+    </platform>
+
+   
+</plugin>
+	
