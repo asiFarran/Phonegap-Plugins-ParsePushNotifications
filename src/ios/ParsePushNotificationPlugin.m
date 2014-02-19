@@ -119,6 +119,10 @@
         NSDictionary *aps = [notificationMessage objectForKey:@"aps"];
         NSMutableDictionary *data = [[notificationMessage objectForKey:@"data"] mutableCopy];
         
+        if(data == nil){
+            data = [[NSMutableDictionary alloc] init];
+        }
+        
         /*
          
         the aps.alert value is required in order for the ios notification center to have something to show
