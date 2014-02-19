@@ -1,5 +1,9 @@
 //
 //  ParsePushNotificationPlugin.m
+//  HelloWorld
+//
+//  Created by yoyo on 2/12/14.
+//
 //
 
 #import "ParsePushNotificationPlugin.h"
@@ -9,7 +13,6 @@
 
     
     @synthesize notificationMessage;
-    @synthesize isInline;
     
     @synthesize callbackId;
     @synthesize notificationCallbackId;
@@ -41,7 +44,6 @@
         self.callbackId = command.callbackId;
         self.callback = [options objectForKey:@"notificationCallback"];
         
-        isInline = NO;
         
         if (notificationMessage)			// if there is a pending startup notification
 		[self notificationReceived];	// go ahead and process it
@@ -116,23 +118,43 @@
     
     if (notificationMessage && self.callback)
     {
-        NSMutableString *jsonStr = [NSMutableString stringWithString:@"{"];
+        BOOL appInForeground = [[notificationMessage objectForKey:@"appActiveWhenReceiving"] boolValue];
+        NSDictionary *aps = [notificationMessage objectForKey:@"aps"];
+        NSMutableDictionary *data = [[notificationMessage objectForKey:@"data"] mutableCopy];
         
-        [self parseDictionary:notificationMessage intoJSON:jsonStr];
+        /*
+         
+        the aps.alert value is required in order for the ios notification center to have something to show
+         or else it wouls show the full JSON payload.
+         
+         however on the js side we want to access all the properties for this notification inside a single
+         object and care not for ios specific implemenataion such as the aps wrapper
+         
+         we could just duplicate the text and have it in both *aps.alert* and inside data.message but as the
+         payload size limit is only 256 bytes it is better to check if an explicit data.message value exists
+         and if not just copy aps.alert into it
+         
+        */
         
-        if (isInline)
-        {
-            [jsonStr appendFormat:@"foreground:\"%d\"", 1];
-            isInline = NO;
+        if([aps objectForKey:@"alert"]){
+            if(![data objectForKey:@"message"]){
+                [data setObject:[aps objectForKey:@"alert"] forKey:@"message"];
+            }
         }
-		else
-        [jsonStr appendFormat:@"foreground:\"%d\"", 0];
         
-        [jsonStr appendString:@"}"];
+        NSMutableDictionary *notification = [[NSMutableDictionary alloc] init];
         
-        NSLog(@"Msg: %@", jsonStr);
+        [notification setObject:[NSNumber numberWithBool:appInForeground] forKey:@"receivedWhileInForeground"];
+        [notification setObject:data forKey:@"data"];
         
-        NSString * jsCallBack = [NSString stringWithFormat:@"%@(%@);", self.callback, jsonStr];
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:notification options:NSJSONWritingPrettyPrinted error:nil];
+                            
+        NSString *json = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+        
+        
+        NSLog(@"Msg: %@", json);
+        
+        NSString * jsCallBack = [NSString stringWithFormat:@"%@(%@);", self.callback, json];
         [self.webView stringByEvaluatingJavaScriptFromString:jsCallBack];
         
         self.notificationMessage = nil;

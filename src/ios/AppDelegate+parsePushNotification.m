@@ -1,5 +1,9 @@
 //
 //  AppDelegate+parsePushNotification.m
+//  HelloWorld
+//
+//  Created by yoyo on 2/12/14.
+//
 //
 
 #import "AppDelegate+parsePushNotification.h"
@@ -69,14 +73,16 @@ static char launchNotificationKey;
         appState = application.applicationState;
     }
     
+    NSMutableDictionary *notificationPayload = [userInfo mutableCopy];
+    [notificationPayload setObject:[NSNumber numberWithBool:(appState == UIApplicationStateActive)] forKey:@"appActiveWhenReceiving"];
+    
     if (appState == UIApplicationStateActive) {
         ParsePushNotificationPlugin *pushHandler = [self getCommandInstance:@"ParsePushNotificationPlugin"];
-        pushHandler.notificationMessage = userInfo;
-        pushHandler.isInline = YES;
+        pushHandler.notificationMessage = notificationPayload;
         [pushHandler notificationReceived];
     } else {
         //save it for later
-        self.launchNotification = userInfo;
+        self.launchNotification = notificationPayload;
     }
 }
     

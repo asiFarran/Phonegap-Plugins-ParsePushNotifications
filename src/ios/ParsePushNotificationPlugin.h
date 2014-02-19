@@ -1,5 +1,9 @@
 //
 //  ParsePushNotificationPlugin.h
+//  HelloWorld
+//
+//  Created by yoyo on 2/12/14.
+//
 //
 
 #import <Cordova/CDV.h>
@@ -7,7 +11,7 @@
 @interface ParsePushNotificationPlugin : CDVPlugin
     {
         NSDictionary *notificationMessage;
-        BOOL    isInline;
+        BOOL    isInForeground;
         NSString *notificationCallbackId;
         NSString *callback;
         
@@ -20,7 +24,6 @@
 
     
     @property (nonatomic, strong) NSDictionary *notificationMessage;
-    @property BOOL isInline;
     
 - (void)register:(CDVInvokedUrlCommand*)command;
     - (void)unregister:(CDVInvokedUrlCommand*)command;
