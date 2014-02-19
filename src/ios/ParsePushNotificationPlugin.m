@@ -10,12 +10,9 @@
 #import <Parse/Parse.h>
 
 @implementation ParsePushNotificationPlugin
-
     
     @synthesize notificationMessage;
-    
     @synthesize callbackId;
-    @synthesize notificationCallbackId;
     @synthesize callback;
     
     

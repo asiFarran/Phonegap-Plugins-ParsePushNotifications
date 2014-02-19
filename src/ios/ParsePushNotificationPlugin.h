@@ -11,15 +11,13 @@
 @interface ParsePushNotificationPlugin : CDVPlugin
     {
         NSDictionary *notificationMessage;
-        BOOL    isInForeground;
-        NSString *notificationCallbackId;
         NSString *callback;
         
         BOOL ready;
     }
     
     @property (nonatomic, copy) NSString *callbackId;
-    @property (nonatomic, copy) NSString *notificationCallbackId;
+
     @property (nonatomic, copy) NSString *callback;
 
     
