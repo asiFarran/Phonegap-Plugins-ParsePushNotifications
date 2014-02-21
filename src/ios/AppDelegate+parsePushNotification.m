@@ -12,47 +12,50 @@
 #import <objc/runtime.h>
 #import <Parse/Parse.h>
 
-static UILocalNotification *launchNotification;
-static BOOL notificationColdStart;
+static NSMutableDictionary *remoteNotification;
+static BOOL remoteNotificationColdStart;
 
 @implementation AppDelegate (parsePushNotification)
-   
+
+
+
 - (id) getCommandInstance:(NSString*)className
-    {
-        return [self.viewController getCommandInstance:className];
-    }
-    
+{
+    return [self.viewController getCommandInstance:className];
+}
+
 + (void)load
 {
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(checkForNotification:)
-	                                                 name:@"UIApplicationDidFinishLaunchingNotification" object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(checkForRemoteNotificationOnStartup:)
+                                                 name:@"UIApplicationDidFinishLaunchingNotification" object:nil];
 }
-    
 
-    
-    // This code will be called immediately after application:didFinishLaunchingWithOptions:. We need
-    // to process notifications in cold-start situations
-- (void)checkForNotification:(NSNotification *)notification
+
+
+
+- (void)checkForRemoteNotificationOnStartup:(NSNotification *)notification
+{
+    if (notification)
     {
-        if (notification)
-        {
-            NSDictionary *launchOptions = [notification userInfo];
-            if (launchOptions)
-			launchNotification = [launchOptions objectForKey: @"UIApplicationLaunchOptionsRemoteNotificationKey"];
-			notificationColdStart = YES;
+        NSDictionary *launchOptions = [notification userInfo];
+        if (launchOptions)
+        remoteNotification = [launchOptions objectForKey: @"UIApplicationLaunchOptionsRemoteNotificationKey"];
+        if(remoteNotification){
+            remoteNotificationColdStart = YES;
         }
     }
-    
+}
+
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
     ParsePushNotificationPlugin *pushHandler = [self getCommandInstance:@"ParsePushNotificationPlugin"];
     [pushHandler didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
 }
-    
+
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
     ParsePushNotificationPlugin *pushHandler = [self getCommandInstance:@"ParsePushNotificationPlugin"];
     [pushHandler didFailToRegisterForRemoteNotificationsWithError:error];
 }
-    
+
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
     NSLog(@"didReceiveNotification");
     
@@ -71,37 +74,31 @@ static BOOL notificationColdStart;
         [pushHandler notificationReceived];
     } else {
         //save it for later
-        launchNotification = notificationPayload;
+        remoteNotification = notificationPayload;
     }
 }
-    
+
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     
-    NSLog(@"active");
+   NSLog(@"push notification active");
     
-    //zero badge
-    application.applicationIconBadgeNumber = 0;
+
     
-    if (![self.viewController.webView isLoading] && launchNotification) {
+    if (![self.viewController.webView isLoading] && remoteNotification) {
         ParsePushNotificationPlugin *pushHandler = [self getCommandInstance:@"ParsePushNotificationPlugin"];
         
-        pushHandler.notificationMessage = launchNotification;
-        launchNotification = nil;
+        pushHandler.notificationMessage = remoteNotification;
+        remoteNotification = nil;
 		
-		if(notificationColdStart){
-		            notificationColdStart = NO; //reset flag so new incoming notifications can be passed directly to the handler
-		        }
-		        else{
-		             [pushHandler performSelectorOnMainThread:@selector(notificationReceived) withObject:pushHandler waitUntilDone:NO];
-		        }
-       
+		if(remoteNotificationColdStart){
+            remoteNotificationColdStart = NO; //reset flag so new incoming notifications can be passed directly to the handler
+        }
+        else{
+            [pushHandler performSelectorOnMainThread:@selector(notificationReceived) withObject:pushHandler waitUntilDone:NO];
+        }
+        
     }
 }
-   
-    
-- (void)dealloc
-    {
-        launchNotification	= nil; 
-    }
-    
-    @end
+
+
+@end
