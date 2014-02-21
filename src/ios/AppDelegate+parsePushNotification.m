@@ -12,38 +12,82 @@
 #import <objc/runtime.h>
 #import <Parse/Parse.h>
 
-static NSMutableDictionary *remoteNotification;
-static BOOL remoteNotificationColdStart;
+
 
 @implementation AppDelegate (parsePushNotification)
 
 
+// The goal is to have a drop-in module that does not require the user to
+// make any manual additions to the AppDelegate
 
-- (id) getCommandInstance:(NSString*)className
-{
-    return [self.viewController getCommandInstance:className];
-}
+// To do so we need to hook into the AppDelegate events and life cyle
+// and we do so by creating a category class implementing only the functionailty relevant to this plugin
+
+// The only way to allow SEVERAL plugins to use this method with colliding
+// is to register static and unique event handlers that then use [[UIApplication sharedApplication] delegate]
+// to gain access to the root controller and the actual plugin
+
+// All variables and method names are postfixed with the plugin name to try and ensure they are unique
+// to prevent collision with other plugin handlers
+
+static NSMutableDictionary *notificationPayload_parsePushNotification;
+static BOOL isColdStart_parsePushNotification;
 
 + (void)load
 {
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(checkForRemoteNotificationOnStartup:)
+  
+    
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(checkForNotificationsOnStartup_parsePushNotification:)
                                                  name:@"UIApplicationDidFinishLaunchingNotification" object:nil];
+    
+
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidBecomeActiveHandler_parsePushNotification:)
+                                                 name:@"UIApplicationDidBecomeActiveNotification" object:nil];
 }
 
 
 
 
-- (void)checkForRemoteNotificationOnStartup:(NSNotification *)notification
++ (void)checkForNotificationsOnStartup_parsePushNotification:(NSNotification *)notification
 {
-    if (notification)
-    {
-        NSDictionary *launchOptions = [notification userInfo];
-        if (launchOptions)
-        remoteNotification = [launchOptions objectForKey: @"UIApplicationLaunchOptionsRemoteNotificationKey"];
-        if(remoteNotification){
-            remoteNotificationColdStart = YES;
+    NSDictionary *launchOptions = [notification userInfo];
+    
+    if (launchOptions)
+    
+        notificationPayload_parsePushNotification = [launchOptions objectForKey: @"UIApplicationLaunchOptionsRemoteNotificationKey"];
+    
+        if(notificationPayload_parsePushNotification){
+            
+            isColdStart_parsePushNotification = YES;
         }
-    }
+    
+}
+
++ (void)applicationDidBecomeActiveHandler_parsePushNotification:(NSNotification *)notification
+{
+    
+	AppDelegate *delegate =  [[UIApplication sharedApplication] delegate];
+        
+        if (![delegate.viewController.webView isLoading] && notificationPayload_parsePushNotification) {
+            
+            ParsePushNotificationPlugin *handler = [delegate getCommandInstance:@"ParsePushNotificationPlugin"];
+            
+            handler.pendingNotification = notificationPayload_parsePushNotification;
+            notificationPayload_parsePushNotification = nil;
+            
+            // on cold start the cordova view will not be ready to handle the event yet
+            // so we don tinvoke it. It will call when its ready
+            if(isColdStart_parsePushNotification){
+                
+                isColdStart_parsePushNotification = NO; //reset flag so new incoming notifications can be passed directly to the handler
+            }
+            else{
+                [handler performSelectorOnMainThread:@selector(notificationReceived) withObject:handler waitUntilDone:NO];
+            }
+        }
+        
+        delegate = nil;
+	
 }
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
@@ -69,35 +113,21 @@ static BOOL remoteNotificationColdStart;
     [notificationPayload setObject:[NSNumber numberWithBool:(appState == UIApplicationStateActive)] forKey:@"appActiveWhenReceiving"];
     
     if (appState == UIApplicationStateActive) {
+        
         ParsePushNotificationPlugin *pushHandler = [self getCommandInstance:@"ParsePushNotificationPlugin"];
-        pushHandler.notificationMessage = notificationPayload;
+        pushHandler.pendingNotification = notificationPayload;
+        
         [pushHandler notificationReceived];
+        
     } else {
         //save it for later
-        remoteNotification = notificationPayload;
+        notificationPayload_parsePushNotification = notificationPayload;
     }
 }
 
-- (void)applicationDidBecomeActive:(UIApplication *)application {
-    
-   NSLog(@"push notification active");
-    
-
-    
-    if (![self.viewController.webView isLoading] && remoteNotification) {
-        ParsePushNotificationPlugin *pushHandler = [self getCommandInstance:@"ParsePushNotificationPlugin"];
-        
-        pushHandler.notificationMessage = remoteNotification;
-        remoteNotification = nil;
-		
-		if(remoteNotificationColdStart){
-            remoteNotificationColdStart = NO; //reset flag so new incoming notifications can be passed directly to the handler
-        }
-        else{
-            [pushHandler performSelectorOnMainThread:@selector(notificationReceived) withObject:pushHandler waitUntilDone:NO];
-        }
-        
-    }
+- (id) getCommandInstance:(NSString*)className
+{
+    return [self.viewController getCommandInstance:className];
 }
 
 

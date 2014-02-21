@@ -11,7 +11,7 @@
 
 @implementation ParsePushNotificationPlugin
     
-    @synthesize notificationMessage;
+    @synthesize pendingNotification;
     @synthesize callbackId;
     @synthesize callback;
     
@@ -42,7 +42,7 @@
         self.callback = [options objectForKey:@"notificationCallback"];
         
         
-        if (notificationMessage)			// if there is a pending startup notification
+        if (pendingNotification)			// if there is a pending startup notification
 		[self notificationReceived];	// go ahead and process it
     }
     
@@ -113,11 +113,11 @@
 - (void)notificationReceived {
     NSLog(@"Notification received");
     
-    if (notificationMessage && self.callback)
+    if (pendingNotification && self.callback)
     {
-        BOOL appInForeground = [[notificationMessage objectForKey:@"appActiveWhenReceiving"] boolValue];
-        NSDictionary *aps = [notificationMessage objectForKey:@"aps"];
-        NSMutableDictionary *data = [[notificationMessage objectForKey:@"data"] mutableCopy];
+        BOOL appInForeground = [[pendingNotification objectForKey:@"appActiveWhenReceiving"] boolValue];
+        NSDictionary *aps = [pendingNotification objectForKey:@"aps"];
+        NSMutableDictionary *data = [[pendingNotification objectForKey:@"data"] mutableCopy];
         
         if(data == nil){
             data = [[NSMutableDictionary alloc] init];
@@ -158,46 +158,10 @@
         NSString * jsCallBack = [NSString stringWithFormat:@"%@(%@);", self.callback, json];
         [self.webView stringByEvaluatingJavaScriptFromString:jsCallBack];
         
-        self.notificationMessage = nil;
+        self.pendingNotification = nil;
     }
 }
-    
-    // reentrant method to drill down and surface all sub-dictionaries' key/value pairs into the top level json
--(void)parseDictionary:(NSDictionary *)inDictionary intoJSON:(NSMutableString *)jsonString
-    {
-        NSArray         *keys = [inDictionary allKeys];
-        NSString        *key;
-        
-        for (key in keys)
-        {
-            id thisObject = [inDictionary objectForKey:key];
-            
-            if ([thisObject isKindOfClass:[NSDictionary class]])
-            [self parseDictionary:thisObject intoJSON:jsonString];
-            else if ([thisObject isKindOfClass:[NSString class]])
-            [jsonString appendFormat:@"\"%@\":\"%@\",",
-             key,
-             [[[[inDictionary objectForKey:key]
-                stringByReplacingOccurrencesOfString:@"\\" withString:@"\\\\"]
-               stringByReplacingOccurrencesOfString:@"\"" withString:@"\\\""]
-              stringByReplacingOccurrencesOfString:@"\n" withString:@"\\n"]];
-            else {
-                [jsonString appendFormat:@"\"%@\":\"%@\",", key, [inDictionary objectForKey:key]];
-            }
-        }
-    }
-    
-- (void)setApplicationIconBadgeNumber:(CDVInvokedUrlCommand *)command {
-    
-    self.callbackId = command.callbackId;
-    
-    NSMutableDictionary* options = [command.arguments objectAtIndex:0];
-    int badge = [[options objectForKey:@"badge"] intValue] ?: 0;
-    
-    [[UIApplication sharedApplication] setApplicationIconBadgeNumber:badge];
-    
-    [self successWithMessage:[NSString stringWithFormat:@"app badge count set to %d", badge]];
-}
+
     
 -(void)successWithMessage:(NSString *)message
     {

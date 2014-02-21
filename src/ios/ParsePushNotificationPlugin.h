@@ -10,7 +10,7 @@
 
 @interface ParsePushNotificationPlugin : CDVPlugin
     {
-        NSDictionary *notificationMessage;
+        NSDictionary *pendingNotification;
         NSString *callback;
         
         BOOL ready;
@@ -21,7 +21,7 @@
     @property (nonatomic, copy) NSString *callback;
 
     
-    @property (nonatomic, strong) NSDictionary *notificationMessage;
+    @property (nonatomic, strong) NSDictionary *pendingNotification;
     
 - (void)register:(CDVInvokedUrlCommand*)command;
     - (void)unregister:(CDVInvokedUrlCommand*)command;
