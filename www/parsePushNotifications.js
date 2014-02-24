@@ -7,27 +7,27 @@
                
     ParsePushPlugin.prototype = {
     	
-		register = function(options, successCallback, errorCallback) {
+		register : function(options, successCallback, errorCallback) {
                
 			exec(successCallback,errorCallback,pluginNativeName,'register',[options]);
 		},
 		
-		getInstallationId = function(successCallback, errorCallback) {
+		getInstallationId : function(successCallback, errorCallback) {
                
 			exec(successCallback,errorCallback,pluginNativeName,'getInstallationId',[]);
 		},
 		
-		getSubscriptions = function(successCallback, errorCallback) {
+		getSubscriptions : function(successCallback, errorCallback) {
                
 			exec(successCallback,errorCallback,pluginNativeName,'getSubscriptions',[]);
 		},
 		
-		subscribe = function(channel, successCallback, errorCallback) {
+		subscribe : function(channel, successCallback, errorCallback) {
                
 			exec(successCallback,errorCallback,pluginNativeName,'subscribeToChannel',[channel]);
 		},
 		
-		unsubscribe = function(channel, successCallback, errorCallback) {
+		unsubscribe : function(channel, successCallback, errorCallback) {
                
 			exec(successCallback,errorCallback,pluginNativeName,'unsubscribeFromChannel',[channel]);
 		},
