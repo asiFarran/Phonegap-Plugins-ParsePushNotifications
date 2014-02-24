@@ -1,59 +1,40 @@
+	var exec = require('cordova/exec');
+    var pluginNativeName = "ParsePushNotificationPlugin";
+               
+    var ParsePushPlugin = function () {
+    };
 
-var exec = require('cordova/exec');
-               var pluginNativeName = "ParsePushNotificationPlugin";
                
-               var ParsePushPlugin = function () {};
+    ParsePushPlugin.prototype = {
+    	
+		register = function(options, successCallback, errorCallback) {
                
+			exec(successCallback,errorCallback,pluginNativeName,'register',[options]);
+		},
+		
+		getInstallationId = function(successCallback, errorCallback) {
                
-               ParsePushPlugin.prototype.register = function(options, successCallback, errorCallback) {
+			exec(successCallback,errorCallback,pluginNativeName,'getInstallationId',[]);
+		},
+		
+		getSubscriptions = function(successCallback, errorCallback) {
                
-                    exec(
-                            successCallback,
-                            errorCallback,
-                            pluginNativeName,
-                            'register',
-                            [options]);
-               };
+			exec(successCallback,errorCallback,pluginNativeName,'getSubscriptions',[]);
+		},
+		
+		subscribe = function(channel, successCallback, errorCallback) {
                
-               ParsePushPlugin.prototype.getInstallationId = function(successCallback, errorCallback) {
+			exec(successCallback,errorCallback,pluginNativeName,'subscribeToChannel',[channel]);
+		},
+		
+		unsubscribe = function(channel, successCallback, errorCallback) {
                
-                    exec(
-                            successCallback,
-                            errorCallback,
-                            pluginNativeName,
-                            'getInstallationId',
-                            []);
-               };
+			exec(successCallback,errorCallback,pluginNativeName,'unsubscribeFromChannel',[channel]);
+		},
+		
+		ontrigger = function(state, json){}
+    };
+	
                
-               ParsePushPlugin.prototype.getSubscriptions = function(successCallback, errorCallback) {
-               
-                    exec(
-                            successCallback,
-                            errorCallback,
-                            pluginNativeName,
-                            'getSubscriptions',
-                            []);
-               };
-               
-               ParsePushPlugin.prototype.subscribe = function(channel, successCallback, errorCallback) {
-               
-                    exec(
-                            successCallback,
-                            errorCallback,
-                            pluginNativeName,
-                            'subscribeToChannel',
-                            [ channel ]);
-               };
-               
-               ParsePushPlugin.prototype.unsubscribe = function(channel, successCallback, errorCallback) {
-            
-                    exec(
-                            successCallback,
-                            errorCallback,
-                            pluginNativeName,
-                            'unsubscribeFromChannel',
-                            [ channel ]);
-               };
-			   
-               module.exports = new ParsePushPlugin();
+    module.exports = new ParsePushPlugin();
 
