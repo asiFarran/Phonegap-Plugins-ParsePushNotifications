@@ -32,7 +32,7 @@
 			exec(successCallback,errorCallback,pluginNativeName,'unsubscribeFromChannel',[channel]);
 		},
 		
-		ontrigger = function(state, json){}
+		ontrigger : function(state, json){}
     };
 	
                
