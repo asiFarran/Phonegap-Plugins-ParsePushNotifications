@@ -16,7 +16,7 @@
 static NSDictionary *coldstartNotification;
 
 NSMutableArray *jsEventQueue;
-BOOL canDeliverNotificationEvents = NO;
+BOOL canDeliverNotifications = NO;
 
 /* 
     Ideally the UIApplicationDidFinishLaunchingNotification would go in pluginInitialize
@@ -87,7 +87,7 @@ BOOL canDeliverNotificationEvents = NO;
     self.callbackId = command.callbackId;
 
     [self flushNotificationEventQueue];
-    canDeliverNotificationEvents = YES;
+    canDeliverNotifications = YES;
 }
 
 
@@ -216,7 +216,7 @@ BOOL canDeliverNotificationEvents = NO;
 
 - (void) didBecomeActive:(NSNotification *)notification
 {
-    if(canDeliverNotificationEvents)
+    if(canDeliverNotifications)
     {
         [self flushNotificationEventQueue];
     }

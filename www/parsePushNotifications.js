@@ -8,7 +8,7 @@
     ParsePushPlugin.prototype = {
     	
 		register : function(options, successCallback, errorCallback) {
-               
+           
 			exec(successCallback,errorCallback,pluginNativeName,'register',[options]);
 		},
 		
@@ -32,9 +32,10 @@
 			exec(successCallback,errorCallback,pluginNativeName,'unsubscribeFromChannel',[channel]);
 		},
 		
-		ontrigger : function(state, json){}
+               ontrigger : function(state, json){}
     };
 	
                
     module.exports = new ParsePushPlugin();
+
 
