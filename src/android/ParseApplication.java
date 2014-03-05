@@ -6,9 +6,9 @@ import com.parse.ParseInstallation;
 import com.parse.PushService;
 import com.stratogos.cordova.parsePushNotifications.PushHandlerActivity;
 
-public class MyApplication extends Application {
+public class ParseApplication extends Application {
 
-    public MyApplication(){
+    public ParseApplication(){
         super();
     }
 
