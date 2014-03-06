@@ -16,19 +16,19 @@
 
 @implementation AppDelegate (parsePushNotification)
 
-- (void) didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken 
+- (void) application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
 {
     ParsePushNotificationPlugin *pushHandler = [self getCommandInstance:@"ParsePushNotificationPlugin"];
     [pushHandler didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
 }
 
-- (void) didFailToRegisterForRemoteNotificationsWithError:(NSError *)error 
+- (void) application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error
 {
     ParsePushNotificationPlugin *pushHandler = [self getCommandInstance:@"ParsePushNotificationPlugin"];
     [pushHandler didFailToRegisterForRemoteNotificationsWithError:error];
 }
 
-- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)payload 
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)payload
 {
     
     NSLog(@"didReceiveRemoteNotification");
