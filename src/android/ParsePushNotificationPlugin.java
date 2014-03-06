@@ -19,44 +19,54 @@ import org.apache.cordova.CordovaPlugin;
 
 
 public class ParsePushNotificationPlugin extends CordovaPlugin {
-	public static final String TAG = "ParsePushNotificationPlugin";
+    public static final String TAG = "ParsePushNotificationPlugin";
 
-	private static CordovaWebView gWebView;
+    private static CordovaWebView gWebView;
 
+    private static boolean isInForeground = false;
     private static boolean canDeliverNotifications = false;
     private static ArrayList<String> callbackQueue = new ArrayList<String>();
 
-	/**
-	 * Gets the application context from cordova's main activity.
-	 * @return the application context
-	 */
-	private Context getApplicationContext() {
-		return this.cordova.getActivity().getApplicationContext();
-	}
+    /**
+     * Gets the application context from cordova's main activity.
+     * @return the application context
+     */
+    private Context getApplicationContext() {
+        return this.cordova.getActivity().getApplicationContext();
+    }
 
-	@Override
-	public boolean execute(String action, JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    @Override
+    public boolean execute(String action, JSONArray args, final CallbackContext callbackContext) throws JSONException {
 
         Log.v(TAG, "execute: action=" + action);
 
         if (action.equalsIgnoreCase("register")){
 
-            JSONObject params = args.optJSONObject(0);
+            //JSONObject params = args.optJSONObject(0);
 
-           // Parse.initialize(getApplicationContext(), params.optString("appId",""), params.optString("clientKey", ""));
-           // PushService.setDefaultPushCallback(getApplicationContext() ,PushHandlerActivity.class);
-           // ParseInstallation.getCurrentInstallation().saveInBackground();
+            // Parse.initialize(getApplicationContext(), params.optString("appId",""), params.optString("clientKey", ""));
+            // PushService.setDefaultPushCallback(getApplicationContext() ,PushHandlerActivity.class);
+            // ParseInstallation.getCurrentInstallation().saveInBackground();
 
             callbackContext.success();
+
             canDeliverNotifications = true;
+
+            cordova.getThreadPool().execute(new Runnable() {
+                @Override
+                public void run() {
+                    flushCallbackQueue();
+                }
+            });
+
 
             return true;
         }
         else if (action.equalsIgnoreCase("unregister")){
 
-           ParseInstallation.getCurrentInstallation().deleteInBackground();
+            ParseInstallation.getCurrentInstallation().deleteInBackground();
 
-           callbackContext.success();
+            callbackContext.success();
 
             return true;
         }
@@ -103,12 +113,12 @@ public class ParsePushNotificationPlugin extends CordovaPlugin {
         }
 
         return false;
-	}
+    }
 
-	/*
-	 * Sends a json object to the client as parameter to a method which is defined in gECB.
-	 */
-	public static void NotificationReceived(String json, boolean receivedInForeground) {
+    /*
+     * Sends a json object to the client as parameter to a method which is defined in gECB.
+     */
+    public static void NotificationReceived(String json, boolean receivedInForeground) {
 
         String state = receivedInForeground ? "foreground" : "background";
 
@@ -166,24 +176,51 @@ public class ParsePushNotificationPlugin extends CordovaPlugin {
             callbackQueue.add(js);
         }
 
-	}
+    }
 
 
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         super.initialize(cordova, webView);
         gWebView = webView;
+        isInForeground = true;
     }
 
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-		gWebView = null;
+        gWebView = null;
+        isInForeground = false;
+    }
+
+    @Override
+    public void onPause(boolean multitasking) {
+        super.onPause(multitasking);
+        isInForeground = false;
+    }
+
+    @Override
+    public void onResume(boolean multitasking) {
+        super.onResume(multitasking);
+        isInForeground = true;
+    }
+
+    private void flushCallbackQueue(){
+        for(String js : callbackQueue){
+            gWebView.sendJavascript(js);
+        }
+
+        callbackQueue.clear();
     }
 
     public static boolean isActive()
     {
-    	return gWebView != null;
+        return gWebView != null;
+    }
+
+    public static boolean isInForeground()
+    {
+        return isInForeground;
     }
 }

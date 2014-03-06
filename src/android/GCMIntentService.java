@@ -33,7 +33,10 @@ public class GCMIntentService extends GCMBaseIntentService {
     protected void onMessage(Context context, Intent intent) {
         Log.d(TAG, "onMessage - context: " + context);
 
-        ParsePushNotificationPlugin.NotificationReceived(intent.getExtras().getString("data"), true);
+        //do nothing with notifications arriving while we are not focused. we'll respond to them in the activity that gets the user click
+        if(ParsePushNotificationPlugin.isInForeground()){
+            ParsePushNotificationPlugin.NotificationReceived(intent.getExtras().getString("data"), true);
+        }
     }
 
 

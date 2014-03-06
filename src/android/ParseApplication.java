@@ -4,7 +4,7 @@ import android.app.Application;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
 import com.parse.PushService;
-import com.stratogos.cordova.parsePushNotifications.PushHandlerActivity;
+import com.stratogos.airshiptest.HelloCordova;
 
 public class ParseApplication extends Application {
 
