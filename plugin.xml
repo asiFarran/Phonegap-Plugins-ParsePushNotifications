@@ -45,7 +45,7 @@
 
         <config-file target="config.xml" parent="/*">
 			<feature name="ParsePushNotificationPlugin">
-				<param name="android-package" value="ParsePushNotificationPlugin" />
+				<param name="android-package" value="com.stratogos.cordova.parsePushNotifications.ParsePushNotificationPlugin" />
 			</feature>
         </config-file>
 
