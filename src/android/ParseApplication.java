@@ -12,7 +12,7 @@ public class ParseApplication extends Application {
     }
 
     public void onCreate(){
-        Parse.initialize(getApplicationContext(), "2BxJyqYF3WSqCZpMx5PPZqswfrrRCaqiOxHBCKYz", "SAJBghasKdav0iD66flEX8577gwr4rh52AquIHSA");
+        Parse.initialize(getApplicationContext(), "appId", "clientKey");
         PushService.setDefaultPushCallback(getApplicationContext(), PushHandlerActivity.class);
         ParseInstallation.getCurrentInstallation().saveInBackground();
     }
