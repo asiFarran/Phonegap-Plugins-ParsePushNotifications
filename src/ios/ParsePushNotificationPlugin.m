@@ -80,7 +80,7 @@
         [Parse setApplicationId:appId clientKey:clientKey];
         
 	  // Register for Push Notitications, if running iOS 8
-	    if ([application respondsToSelector:@selector(registerUserNotificationSettings:)]) {
+	    if ([[UIApplication sharedApplication] respondsToSelector:@selector(registerUserNotificationSettings:)]) {
 	      UIUserNotificationType userNotificationTypes = (UIUserNotificationTypeAlert |
 	                                                      UIUserNotificationTypeBadge |
 	                                                      UIUserNotificationTypeSound);
