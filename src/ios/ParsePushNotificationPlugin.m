@@ -86,11 +86,11 @@
 	                                                      UIUserNotificationTypeSound);
 	      UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:userNotificationTypes
 	                                                                               categories:nil];
-	      [application registerUserNotificationSettings:settings];
-	      [application registerForRemoteNotifications];
+	      [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
+	      [[UIApplication sharedApplication] registerForRemoteNotifications];
 	    } else {
 	      // Register for Push Notifications before iOS 8
-	      [application registerForRemoteNotificationTypes:(UIRemoteNotificationTypeBadge |
+	      [[UIApplication sharedApplication] registerForRemoteNotificationTypes:(UIRemoteNotificationTypeBadge |
 	                                                       UIRemoteNotificationTypeAlert |
 	                                                       UIRemoteNotificationTypeSound)];
 	    }
